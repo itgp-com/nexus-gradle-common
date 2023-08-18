@@ -1,0 +1,69 @@
+
+
+
+task compileScss {
+    description = 'Compile SCSS to CSS'
+    group = 'build'
+
+    doLast {
+        // Define the directory containing the SCSS files
+        def scssDir = file('src/main/browser')
+        // Define the output directory for the compiled CSS files
+        def outputDir = file('src/main/browser/public')
+
+        // Ensure the output directory exists
+        outputDir.mkdirs()
+
+        // clear the output directory of all css files previously there
+        outputDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith('.css') || name.endsWith('.map')
+            }
+        }).each { File cssFile ->
+            cssFile.delete()
+        } // each
+
+        int exitValue = 0
+        // Iterate over the SCSS files in the directory
+        scssDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith('.scss')
+            }
+        }).each { File scssFile ->
+            // Define the output CSS file path
+            def cssFile = new File(outputDir, scssFile.name - '.scss' + '.css')
+
+            // Define the command to run
+            def command = ['npx', 'sass', scssFile, cssFile]
+
+            // Execute the command and capture the output
+            Process process = command.execute()
+            process.waitFor()
+
+            // Capture the standard output and error (this can only be done once)
+            String commandOutput = process.in.text
+            String commandError = process.err.text
+            int localExitValue = process.exitValue()
+            if (localExitValue > 0) {
+                exitValue = localExitValue
+            }
+
+            if (localExitValue > 0) {
+                // print each error to the console
+                logger.error "Error compiling ${scssFile.name} to ${cssFile.name}"
+                logger.error commandError
+            } else
+
+                println "Compiled ${scssFile.name} to ${cssFile.name}:"
+            if (commandOutput)
+                println commandOutput
+
+        } // each
+
+
+        if (exitValue > 0)
+            throw new GradleException("Error compiling SCSS to CSS. Build failed.")
+
+    }// doLast
+
+}
