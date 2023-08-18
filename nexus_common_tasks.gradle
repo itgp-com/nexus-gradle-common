@@ -1,5 +1,8 @@
-
-
+ext {
+    //scssFilesToCompile = ['theme_material_dark.scss'] // List of files
+    // or
+    // scssFilesToCompile = 'file1.scss' // Single file
+}
 
 task compileScss {
     description = 'Compile SCSS to CSS'
@@ -7,9 +10,9 @@ task compileScss {
 
     doLast {
         // Define the directory containing the SCSS files
-        def scssDir = file('src/main/browser')
+        File scssDir = file('src/main/browser/scss')
         // Define the output directory for the compiled CSS files
-        def outputDir = file('src/main/browser/public')
+        File outputDir = file('src/main/browser/public')
 
         // Ensure the output directory exists
         outputDir.mkdirs()
@@ -24,17 +27,32 @@ task compileScss {
         } // each
 
         int exitValue = 0
-        // Iterate over the SCSS files in the directory
-        scssDir.listFiles(new FilenameFilter() {
+
+        // Get the files to compile from the ext property or use all SCSS files in the directory
+        def filesToCompile = project.hasProperty('scssFilesToCompile') ? project.scssFilesToCompile : scssDir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.endsWith('.scss')
             }
-        }).each { File scssFile ->
+        })
+
+        // Ensure filesToCompile is a list
+        if (filesToCompile instanceof String || filesToCompile instanceof File) {
+            filesToCompile = [filesToCompile]
+        }
+
+        // Iterate over the SCSS files to compile
+        filesToCompile.each { Object folderEntry ->
+            // If scssFile is a string, convert it to a File object
+            if (folderEntry instanceof String) {
+                folderEntry = new File(scssDir, folderEntry)
+            }
+            File scssAsFile = folderEntry as File;
+
             // Define the output CSS file path
-            def cssFile = new File(outputDir, scssFile.name - '.scss' + '.css')
+            def cssFile = new File(outputDir, scssAsFile.name - '.scss' + '.css')
 
             // Define the command to run
-            def command = ['npx', 'sass', scssFile, cssFile]
+            def command = ['npx', 'sass', '--load-path=node_modules', '--load-path=node_modules/@syncfusion', folderEntry, cssFile]
 
             // Execute the command and capture the output
             Process process = command.execute()
@@ -50,20 +68,16 @@ task compileScss {
 
             if (localExitValue > 0) {
                 // print each error to the console
-                logger.error "Error compiling ${scssFile.name} to ${cssFile.name}"
+                logger.error "Error compiling ${scssAsFile.name} to ${cssFile.name}"
                 logger.error commandError
             } else
-
-                println "Compiled ${scssFile.name} to ${cssFile.name}:"
+                println "Compiled ${scssAsFile.name} to ${cssFile.name}:"
             if (commandOutput)
                 println commandOutput
 
         } // each
 
-
         if (exitValue > 0)
             throw new GradleException("Error compiling SCSS to CSS. Build failed.")
-
     }// doLast
-
 }
