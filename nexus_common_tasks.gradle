@@ -30,18 +30,8 @@ task compileScss {
         // Define the output directory for the compiled CSS files
         File outputDir = project.hasProperty('cssOutputDir') ? (project.cssOutputDir instanceof File ? project.cssOutputDir as File : file(project.cssOutputDir)) : file('src/main/browser/public/css')
 
-
         // Ensure the output directory exists
         outputDir.mkdirs()
-
-        // clear the output directory of all css files previously there
-        outputDir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith('.css') || name.endsWith('.map')
-            }
-        }).each { File cssFile ->
-            cssFile.delete()
-        } // each
 
         int exitValue = 0
 
@@ -68,30 +58,34 @@ task compileScss {
             // Define the output CSS file path
             def cssFile = new File(outputDir, scssAsFile.name - '.scss' + '.css')
 
-            // Define the command to run
-            def command = ['npx', 'sass', '--load-path=node_modules', '--load-path=node_modules/@syncfusion', folderEntry, cssFile]
+            // Check if the CSS file does not exist or is older than the SCSS file
+            if (!cssFile.exists() || scssAsFile.lastModified() > cssFile.lastModified()) {
+                // Define the command to run
+                def command = ['npx', 'sass', '--load-path=node_modules', '--load-path=node_modules/@syncfusion', folderEntry, cssFile]
 
-            // Execute the command and capture the output
-            Process process = command.execute()
-            process.waitFor()
+                // Execute the command and capture the output
+                Process process = command.execute()
+                process.waitFor()
 
-            // Capture the standard output and error (this can only be done once)
-            String commandOutput = process.in.text
-            String commandError = process.err.text
-            int localExitValue = process.exitValue()
-            if (localExitValue > 0) {
-                exitValue = localExitValue
+                // Capture the standard output and error (this can only be done once)
+                String commandOutput = process.in.text
+                String commandError = process.err.text
+                int localExitValue = process.exitValue()
+                if (localExitValue > 0) {
+                    exitValue = localExitValue
+                }
+
+                if (localExitValue > 0) {
+                    // print each error to the console
+                    logger.error "Error compiling ${scssAsFile.name} to ${cssFile.name}"
+                    logger.error commandError
+                } else
+                    println "Compiled ${scssAsFile.name} to ${cssFile.name}:"
+                if (commandOutput)
+                    println commandOutput
+            } else {
+                logger.error "${scssAsFile.name} compilation is up to date."
             }
-
-            if (localExitValue > 0) {
-                // print each error to the console
-                logger.error "Error compiling ${scssAsFile.name} to ${cssFile.name}"
-                logger.error commandError
-            } else
-                println "Compiled ${scssAsFile.name} to ${cssFile.name}:"
-            if (commandOutput)
-                println commandOutput
-
         } // each
 
         if (exitValue > 0)
