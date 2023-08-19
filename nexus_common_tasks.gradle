@@ -1,7 +1,23 @@
 ext {
+    // Optional parameters (uses defaults if not defined)
+    //-----------------------------------------------
+    // Input SCSS files directory
+    // scssDir = 'src/main/browser/scss'
+    // or
+    // scssDir = file('src/main/browser/scss')
+    //------
+    //
+    // Directory for compiled output css files
+    // cssOutputDir = 'src/main/browser/public/css'
+    // or
+    // cssOutputDir = file('src/main/browser/public/css')
+    //-----------------------------------------------
+    //
+    // Specific files in the input SCSS directory to compile
     //scssFilesToCompile = ['theme_material_dark.scss'] // List of files
     // or
     // scssFilesToCompile = 'file1.scss' // Single file
+
 }
 
 task compileScss {
@@ -10,9 +26,10 @@ task compileScss {
 
     doLast {
         // Define the directory containing the SCSS files
-        File scssDir = file('src/main/browser/scss')
+        File scssDir = project.hasProperty('scssDir') ? (project.scssDir instanceof File ? project.scssDir as File : file(project.scssDir)) : file('src/main/browser/scss')
         // Define the output directory for the compiled CSS files
-        File outputDir = file('src/main/browser/public')
+        File outputDir = project.hasProperty('cssOutputDir') ? (project.cssOutputDir instanceof File ? project.cssOutputDir as File : file(project.cssOutputDir)) : file('src/main/browser/public/css')
+
 
         // Ensure the output directory exists
         outputDir.mkdirs()
