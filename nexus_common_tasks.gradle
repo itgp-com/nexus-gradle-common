@@ -20,6 +20,28 @@ ext {
 
 }
 
+
+/**
+ * Task to compile SCSS files to CSS.
+ * <p>
+ * This task performs the following:
+ * <ul>
+ *   <li>Defines the directories containing the SCSS files and the compiled CSS files.</li>
+ *   <li>Ensures the output directory exists.</li>
+ *   <li>Deletes any .css and .map files in the output directory that don't have corresponding .scss files in the SCSS directory.</li>
+ *   <li>Compiles the SCSS files to CSS, only if the corresponding CSS file does not exist or is older than the SCSS file.</li>
+ * </ul>
+ * </p>
+ * <p>
+ * The task accepts optional parameters defined in the ext block:
+ * <ul>
+ *   <li><code>scssDir</code>: The directory containing the SCSS files (can be a String or File).</li>
+ *   <li><code>cssOutputDir</code>: The directory for the compiled CSS files (can be a String or File).</li>
+ *   <li><code>scssFilesToCompile</code>: Specific files in the SCSS directory to compile (can be a String or List of files).</li>
+ * </ul>
+ * If these parameters are not defined, the task uses default values.
+ * </p>
+ */
 task compileScss {
     description = 'Compile SCSS to CSS'
     group = 'build'
@@ -32,6 +54,32 @@ task compileScss {
 
         // Ensure the output directory exists
         outputDir.mkdirs()
+
+        //-----------
+        // Get the list of SCSS files in the scssDir
+        def scssFiles = scssDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith('.scss')
+            }
+        })
+
+        // Create a set of SCSS file names without the extension
+        def scssFileNames = scssFiles.collect { it.name - '.scss' }
+
+        // Delete all .css and .map files from outputDir that don't have matching .scss files in scssDir
+        outputDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith('.css') || name.endsWith('.map')
+            }
+        }).each { File cssOrMapFile ->
+            String baseName = cssOrMapFile.name.lastIndexOf('.') > 0 ? cssOrMapFile.name.substring(0, cssOrMapFile.name.lastIndexOf('.')) : cssOrMapFile.name
+            if (!scssFileNames.contains(baseName)) {
+                cssOrMapFile.delete()
+                println "Deleted ${cssOrMapFile.name} as there is no matching .scss file in scssDir"
+            }
+        }
+
+        //-----------
 
         int exitValue = 0
 
