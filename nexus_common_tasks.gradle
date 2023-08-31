@@ -69,15 +69,30 @@ task compileScss {
         // Delete all .css and .map files from outputDir that don't have matching .scss files in scssDir
         outputDir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
-                return name.endsWith('.css') || name.endsWith('.map')
+                return name.endsWith('.css') || name.endsWith('.css.map')
             }
-        }).each { File cssOrMapFile ->
-            String baseName = cssOrMapFile.name.lastIndexOf('.') > 0 ? cssOrMapFile.name.substring(0, cssOrMapFile.name.lastIndexOf('.')) : cssOrMapFile.name
-            if (!scssFileNames.contains(baseName)) {
-                cssOrMapFile.delete()
-                println "Deleted ${cssOrMapFile.name} as there is no matching .scss file in scssDir"
-            }
-        }
+        }).each { File cssOrCssMapFile ->
+            String baseName
+            String fileName = cssOrCssMapFile.name
+            switch(fileName) {
+                case { it.endsWith('.css') }:
+                    baseName = fileName - '.css'
+                    break
+                case { it.endsWith('.css.map') }:
+                    baseName = fileName - '.css.map'
+                    break
+                default:
+                    println "Found unexpected file in outputDir: ${fileName}"
+                    break
+            } // switch
+
+            if ( baseName) {
+                if (!scssFileNames.contains(baseName)) {
+                    cssOrCssMapFile.delete()
+                    println "Deleted ${cssOrCssMapFile.name} as there is no matching .scss file in scssDir"
+                } // if !scssFileNames.contains(baseName)
+            } // if baseName
+        } // each
 
         //-----------
 
