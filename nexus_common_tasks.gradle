@@ -44,7 +44,7 @@ task compileScss {
     dependsOn update_git_repo
 
     doLast {
-        int build = 3
+        int build = 2
         logger.error "compileScss build number '${build}' running." // Github does not update cache right away, so we use the build number to determine if the correct version is running
 
         // Define the directory containing the SCSS files
