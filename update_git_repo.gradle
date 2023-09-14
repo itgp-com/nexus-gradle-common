@@ -42,14 +42,19 @@ task update_git_repo {
 
 
 task updateAndCompileScss(type: Exec) {
-
     doLast {
-        exec {
-            commandLine 'gradle', 'update_git_repo'
-        }
-        exec {
-            commandLine 'gradle', 'compileScss'
+        if ( (System.properties['os.name'] as String).toLowerCase().contains('windows')) {
+            // Windows
+            exec {
+                workingDir = '.' // projectDir
+                commandLine 'cmd', '/c', 'gradle update_git_repo && gradle compileScss'
+            }
+        } else {
+            // Unix-like systems
+            exec {
+                workingDir = '.' // projectDir
+                commandLine 'sh', '-c', 'gradle update_git_repo && gradle compileScss'
+            }
         }
     }
-
 }
