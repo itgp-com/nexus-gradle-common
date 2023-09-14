@@ -43,7 +43,7 @@ task compileScss {
     group = 'build'
 
     doLast {
-        int build = 00001
+        int build = 00002
         logger.error "Build number '${build}' running."
 
         // Define the directory containing the SCSS files
