@@ -40,7 +40,43 @@ task update_git_repo {
 }
 
 
-
+/**
+ * A Gradle task of type 'Exec' that updates the Git repository and then compiles SCSS files.
+ *
+ * <p>
+ * This task is designed to work on both Windows and Unix-like systems. It first determines the
+ * operating system on which it's being executed. Based on that, it sets the appropriate shell
+ * command to run the tasks in sequence.
+ * </p>
+ *
+ * <ul>
+ *   <li>On Windows, it uses the 'cmd' shell to execute the commands.</li>
+ *   <li>On Unix-like systems, it uses the 'sh' shell.</li>
+ * </ul>
+ *
+ * <p>
+ * The sequence of operations is as follows:
+ *   1. Execute the 'update_git_repo' task to update the Git repository. This is crucial because
+ *      the 'compileScss' task definition might be modified during this update.
+ *   2. If the above task succeeds, execute the 'compileScss' task to compile the SCSS files.
+ *      Running this after the update ensures that the latest version of the 'compileScss' task
+ *      is loaded and executed.
+ * </p>
+ *
+ * <p>
+ * The need to run these tasks in sequence arises from the fact that the 'compileScss' task
+ * definition might be updated during the 'update_git_repo' task. Therefore, it's essential to
+ * reload the Gradle build script to ensure the most recent version of the 'compileScss' task is
+ * executed.
+ * </p>
+ *
+ * <p>
+ * Note: This task assumes that the 'gradle' command is available in the system's PATH. If using
+ * the Gradle Wrapper, the command might need to be adjusted to './gradlew' or 'gradlew.bat'.
+ * </p>
+ *
+ * @author David P
+ */
 task updateAndCompileScss(type: Exec) {
     if ((System.properties['os.name'] as String).toLowerCase().contains('windows')) {
         // Windows
