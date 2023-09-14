@@ -51,7 +51,7 @@ task compileScss {
 
         // Delete the directory and all its contents
         outputDir.deleteDir()
-        logger.error "${outputDir.name} folder deleted."
+        logger.error "${outputDir.path} output folder cleared."
 
         // Ensure the output directory exists
         outputDir.mkdirs()
