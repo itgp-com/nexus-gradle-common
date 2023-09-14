@@ -17,6 +17,8 @@ ext {
     // scssFilesToCompile = 'file1.scss' // Single file
 }
 
+apply from: "update_git_repo.gradle"
+
 /**
  * Task to compile SCSS files to CSS.
  * <p>
@@ -41,6 +43,7 @@ ext {
 task compileScss {
     description = 'Compile SCSS to CSS'
     group = 'build'
+    dependsOn update_git_repo
 
     doLast {
         int build = 3
