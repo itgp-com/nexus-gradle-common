@@ -1,0 +1,40 @@
+/**
+ * A Gradle task to update a local Git repository.
+ *
+ * <p>
+ * This task checks if a local Git repository exists under './build/nexus-gradle-common'.
+ * If the repository doesn't exist, it clones the repository from the specified URL.
+ * If the repository does exist, it pulls the latest changes from the remote.
+ * </p>
+ *
+ * <p>
+ * Usage: Run 'gradle updateGitRepo' to execute this task.
+ * </p>
+ *
+ * <p>
+ * Note: Ensure that Git is installed and available in the PATH on the machine where this task runs.
+ * </p>
+ */
+task update_git_repo {
+    doLast {
+        int build = 1
+        logger.error "update_git_repo build number '${build}' running."
+
+        def repoDir = new File('./build/nexus-gradle-common')
+        def gitDir = new File(repoDir, '.git')
+
+        if (!gitDir.exists()) {
+            // Clone the repository if it doesn't exist
+            exec {
+                workingDir = './build'
+                commandLine 'git', 'clone', 'https://github.com/itgp-com/nexus-gradle-common.git'
+            }
+        } else {
+            // Pull the latest changes if the repository exists
+            exec {
+                workingDir = repoDir
+                commandLine 'git', 'pull'
+            }
+        }
+    }
+}
