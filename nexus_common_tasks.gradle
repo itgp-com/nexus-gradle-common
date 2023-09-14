@@ -44,7 +44,7 @@ task compileScss {
 
     doLast {
         int build = 2
-        logger.info "compileScss build number '${build}' running." // Github does not update cache right away, so we use the build number to determine if the correct version is running
+        println "compileScss build number '${build}' running." // Github does not update cache right away, so we use the build number to determine if the correct version is running
 
         // Define the directory containing the SCSS files
         File scssDir = project.hasProperty('scssDir') ? (project.scssDir instanceof File ? project.scssDir as File : file(project.scssDir)) : file('src/main/browser/scss')
@@ -54,7 +54,7 @@ task compileScss {
 
         // Delete the directory and all its contents
         outputDir.deleteDir()
-        logger.info "'${outputDir.name}' output folder cleared."
+        println "'${outputDir.name}' output folder cleared."
 
         // Ensure the output directory exists
         outputDir.mkdirs()
@@ -120,7 +120,7 @@ task compileScss {
                 if (commandOutput)
                     println commandOutput
             } else {
-                logger.info "${scssAsFile.name} compilation is up to date."
+                println "${scssAsFile.name} compilation is up to date."
             }
         } // each
 
