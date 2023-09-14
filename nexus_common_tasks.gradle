@@ -43,6 +43,9 @@ task compileScss {
     group = 'build'
 
     doLast {
+        int build = 00001
+        logger.error "Build number '${build}' running."
+
         // Define the directory containing the SCSS files
         File scssDir = project.hasProperty('scssDir') ? (project.scssDir instanceof File ? project.scssDir as File : file(project.scssDir)) : file('src/main/browser/scss')
         // Define the output directory for the compiled CSS files
@@ -51,7 +54,7 @@ task compileScss {
 
         // Delete the directory and all its contents
         outputDir.deleteDir()
-        logger.error "${outputDir.path} output folder cleared."
+        logger.error "'${outputDir.name}' output folder cleared."
 
         // Ensure the output directory exists
         outputDir.mkdirs()
