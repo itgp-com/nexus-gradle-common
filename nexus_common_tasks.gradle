@@ -43,7 +43,7 @@ task compileScss {
     group = 'build'
 
     doLast {
-        int build = 4
+        int build = 5
         logger.error "compileScss build number '${build}' running." // Github does not update cache right away, so we use the build number to determine if the correct version is running
 
         // Define the directory containing the SCSS files
