@@ -41,10 +41,9 @@ ext {
 task compileScss {
     description = 'Compile SCSS to CSS'
     group = 'build'
-    dependsOn update_git_repo
 
     doLast {
-        int build = 2
+        int build = 4
         logger.error "compileScss build number '${build}' running." // Github does not update cache right away, so we use the build number to determine if the correct version is running
 
         // Define the directory containing the SCSS files
