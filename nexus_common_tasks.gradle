@@ -43,8 +43,8 @@ task compileScss {
     group = 'build'
 
     doLast {
-        int build = 00002
-        logger.error "Build number '${build}' running."
+        int build = 2
+        logger.error "compileScss build number '${build}' running." // Github does not update cache right away, so we use the build number to determine if the correct version is running
 
         // Define the directory containing the SCSS files
         File scssDir = project.hasProperty('scssDir') ? (project.scssDir instanceof File ? project.scssDir as File : file(project.scssDir)) : file('src/main/browser/scss')
