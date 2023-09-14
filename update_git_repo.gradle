@@ -38,3 +38,15 @@ task update_git_repo {
         }
     }
 }
+
+
+task updateAndCompileScss(type: Exec) {
+    doFirst {
+        // Run the update_git_repo task
+        commandLine 'gradle', 'update_git_repo'
+    }
+    doLast {
+        // Run the compileScss task
+        commandLine 'gradle', 'compileScss'
+    }
+}
