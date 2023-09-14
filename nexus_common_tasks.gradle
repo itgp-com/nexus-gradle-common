@@ -48,8 +48,10 @@ task compileScss {
         // Define the output directory for the compiled CSS files
         File outputDir = project.hasProperty('cssOutputDir') ? (project.cssOutputDir instanceof File ? project.cssOutputDir as File : file(project.cssOutputDir)) : file('src/main/browser/public/css')
 
+
         // Delete the directory and all its contents
         outputDir.deleteDir()
+        logger.error "${outputDir.name} folder deleted."
 
         // Ensure the output directory exists
         outputDir.mkdirs()
