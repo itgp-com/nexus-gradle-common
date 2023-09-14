@@ -17,8 +17,6 @@ ext {
     // scssFilesToCompile = 'file1.scss' // Single file
 }
 
-apply from: "update_git_repo.gradle"
-
 /**
  * Task to compile SCSS files to CSS.
  * <p>
