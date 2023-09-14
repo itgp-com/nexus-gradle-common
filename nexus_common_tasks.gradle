@@ -43,18 +43,20 @@ task compileScss {
     group = 'build'
 
     doLast {
-        String build = 2.1
+        String build = 2
         println "compileScss build number '${build}' running." // Github does not update cache right away, so we use the build number to determine if the correct version is running
 
         // Define the directory containing the SCSS files
         File scssDir = project.hasProperty('scssDir') ? (project.scssDir instanceof File ? project.scssDir as File : file(project.scssDir)) : file('src/main/browser/scss')
         // Define the output directory for the compiled CSS files
         File outputDir = project.hasProperty('cssOutputDir') ? (project.cssOutputDir instanceof File ? project.cssOutputDir as File : file(project.cssOutputDir)) : file('src/main/browser/public/css')
+        File baseDir = file('.')
 
+        String relativePath = baseDir.relativePath(outputDir)
 
         // Delete the directory and all its contents
         outputDir.deleteDir()
-        println "'${outputDir.name}' output folder cleared."
+        println "'${relativePath}' output folder cleared."
 
         // Ensure the output directory exists
         outputDir.mkdirs()
