@@ -1,21 +1,25 @@
 ext {
-    // Optional parameters with default values
+    // Optional parameters (uses defaults if not defined)
     //-----------------------------------------------
-    // Directory containing the SCSS files
+    // Input SCSS files directory
     // scssDir = 'src/main/browser/scss'
     // or
     // scssDir = file('src/main/browser/scss')
-    //-----------------------------------------------
-    // Output directory for the compiled CSS files
+    //------
+    //
+    // Directory for compiled output css files
     // cssOutputDir = 'src/main/browser/public/css'
     // or
     // cssOutputDir = file('src/main/browser/public/css')
     //-----------------------------------------------
-    // Specific SCSS files to compile
-    // scssFilesToCompile = ['theme_material_dark.scss'] // List of files
+    //
+    // Specific files in the input SCSS directory to compile
+    //scssFilesToCompile = ['theme_material_dark.scss'] // List of files
     // or
     // scssFilesToCompile = 'file1.scss' // Single file
+
 }
+
 
 /**
  * Task to compile SCSS files to CSS.
@@ -23,8 +27,8 @@ ext {
  * This task performs the following:
  * <ul>
  *   <li>Defines the directories containing the SCSS files and the compiled CSS files.</li>
- *   <li>Deletes the output directory and all its contents.</li>
- *   <li>Ensures the output directory is recreated as empty before continuing.</li>
+ *   <li>Ensures the output directory exists.</li>
+ *   <li>Deletes any .css and .map files in the output directory that don't have corresponding .scss files in the SCSS directory.</li>
  *   <li>Compiles the SCSS files to CSS, only if the corresponding CSS file does not exist or is older than the SCSS file.</li>
  * </ul>
  * </p>
@@ -48,9 +52,6 @@ task compileScss {
         // Define the output directory for the compiled CSS files
         File outputDir = project.hasProperty('cssOutputDir') ? (project.cssOutputDir instanceof File ? project.cssOutputDir as File : file(project.cssOutputDir)) : file('src/main/browser/public/css')
 
-        // Delete the directory and all its contents
-        outputDir.deleteDir()
-
         // Ensure the output directory exists
         outputDir.mkdirs()
 
@@ -61,6 +62,37 @@ task compileScss {
                 return name.endsWith('.scss')
             }
         })
+
+        // Create a set of SCSS file names without the extension
+        def scssFileNames = scssFiles.collect { it.name - '.scss' }
+
+        // Delete all .css and .map files from outputDir that don't have matching .scss files in scssDir
+        outputDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith('.css') || name.endsWith('.css.map')
+            }
+        }).each { File cssOrCssMapFile ->
+            String baseName
+            String fileName = cssOrCssMapFile.name
+            switch(fileName) {
+                case { it.endsWith('.css') }:
+                    baseName = fileName - '.css'
+                    break
+                case { it.endsWith('.css.map') }:
+                    baseName = fileName - '.css.map'
+                    break
+                default:
+                    println "Found unexpected file in outputDir: ${fileName}"
+                    break
+            } // switch
+
+            if ( baseName) {
+                if (!scssFileNames.contains(baseName)) {
+                    cssOrCssMapFile.delete()
+                    println "Deleted ${cssOrCssMapFile.name} as there is no matching .scss file in scssDir"
+                } // if !scssFileNames.contains(baseName)
+            } // if baseName
+        } // each
 
         //-----------
 
