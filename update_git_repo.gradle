@@ -17,8 +17,7 @@
  */
 task update_git_repo {
     doLast {
-        int build = 1
-        logger.error "update_git_repo build number '${build}' running."
+        logger.info "Updating latest helper project under ./build/nexus-gradle-common'"
 
         def repoDir = new File('./build/nexus-gradle-common')
         def gitDir = new File(repoDir, '.git')
