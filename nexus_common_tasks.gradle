@@ -15,7 +15,11 @@ ext {
     // scssFilesToCompile = ['theme_material_dark.scss'] // List of files
     // or
     // scssFilesToCompile = 'file1.scss' // Single file
+
 }
+
+ext.os_name = System.properties['os.name']  //'Linux' for Linux Mint
+ext.npx_exe = (os_name as String == 'Linux' ? 'npx' : "npx.cmd")
 
 /**
  * Task to compile SCSS files to CSS.
@@ -43,7 +47,7 @@ task compileScss {
     group = 'build'
 
     doLast {
-        String ver = """2"""
+        String ver = """3"""
         println "compileScss task version ${ver} running." // Github does not update cache right away, so we use the ver number to determine if the correct version is running
 
         // Define the directory containing the SCSS files
@@ -99,7 +103,7 @@ task compileScss {
             // Check if the CSS file does not exist or is older than the SCSS file
             if (!cssFile.exists() || scssAsFile.lastModified() > cssFile.lastModified()) {
                 // Define the command to run
-                def command = ['npx', 'sass', '--load-path=node_modules', '--load-path=node_modules/@syncfusion', folderEntry, cssFile]
+                def command = [npx_exe, 'sass', '--load-path=node_modules', '--load-path=node_modules/@syncfusion', folderEntry, cssFile]
 
                 // Execute the command and capture the output
                 Process process = command.execute()
